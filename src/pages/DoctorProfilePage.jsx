@@ -85,7 +85,7 @@ function DoctorProfilePage() {
 
     try {
       const response = await fetch(
-        `http://localhost:8081/api/medecins/profil/${medecinEmail}`
+        `https://tabiblink-backend.onrender.com/api/medecins/profil/${medecinEmail}`
       );
 
       if (!response.ok) {
@@ -128,7 +128,7 @@ function DoctorProfilePage() {
 
   const chargerVilles = async () => {
     try {
-      const response = await fetch("http://localhost:8081/api/villes");
+      const response = await fetch("https://tabiblink-backend.onrender.com/api/villes");
       if (response.ok) {
         const data = await response.json();
         setVilles(data);
@@ -165,13 +165,62 @@ function DoctorProfilePage() {
     return Number(value);
   };
 
-  const enregistrerProfil = async (e) => {
-    e.preventDefault();
-    setSaving(true);
-    setMessage("Profil professionnel mis à jour avec succès.");
-setTimeout(() => {
+  
+    const enregistrerProfil = async (e) => {
+  e.preventDefault();
+  setSaving(true);
   setMessage("");
-}, 3000);
+
+  const body = {
+    email: medecinEmail,
+    nom: profil.nom,
+    prenom: profil.prenom,
+    titre: profil.titre,
+    telephoneFixe: profil.telephoneFixe,
+    telephoneMobile: profil.telephoneMobile,
+    adresseCabinet: profil.adresseCabinet,
+    bio: profil.bio,
+    conventionneCnam: profil.conventionneCnam,
+    dureeConsultation: toNumberOrNull(profil.dureeConsultation),
+    diplomesFormations: profil.diplomesFormations,
+    villeId: toNumberOrNull(profil.villeId),
+    delegationId: toNumberOrNull(profil.delegationId),
+    latitude: toNumberOrNull(profil.latitude),
+    longitude: toNumberOrNull(profil.longitude),
+  };
+
+  try {
+    const response = await fetch(
+      `https://tabiblink-backend.onrender.com/api/medecins/profil/${medecinEmail}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.text();
+      setMessage(error || "Impossible de modifier le profil.");
+      return;
+    }
+
+    setMessage("Profil professionnel mis à jour avec succès.");
+    await chargerProfil();
+
+    setTimeout(() => {
+      setMessage("");
+    }, 3000);
+
+  } catch (e) {
+    console.error(e);
+    setMessage("Erreur lors de la mise à jour du profil.");
+  } finally {
+    setSaving(false);
+  }
+};
 
 
     const body = {
