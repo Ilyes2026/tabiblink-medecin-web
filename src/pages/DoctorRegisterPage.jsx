@@ -209,12 +209,12 @@ function DoctorRegisterPage() {
 
     try {
       const response = await fetch(
-  "https://tabiblink-backend.onrender.com/api/auth/inscrireMedecin",
-  {
-    method: "POST",
-    body: data,
-  }
-);
+        "https://tabiblink-backend.onrender.com/api/auth/medecin/register",
+        {
+          method: "POST",
+          body: data,
+        }
+      );
 
       const result = await response.text();
       setMessage(result);
