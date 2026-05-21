@@ -194,9 +194,7 @@ function DoctorProfilePage() {
       `https://tabiblink-backend.onrender.com/api/medecins/profil/${medecinEmail}`,
       {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       }
     );
@@ -209,11 +207,6 @@ function DoctorProfilePage() {
 
     setMessage("Profil professionnel mis à jour avec succès.");
     await chargerProfil();
-
-    setTimeout(() => {
-      setMessage("");
-    }, 3000);
-
   } catch (e) {
     console.error(e);
     setMessage("Erreur lors de la mise à jour du profil.");
@@ -221,49 +214,6 @@ function DoctorProfilePage() {
     setSaving(false);
   }
 };
-
-
-    const body = {
-      nom: profil.nom,
-      prenom: profil.prenom,
-      titre: profil.titre,
-      telephoneFixe: profil.telephoneFixe,
-      telephoneMobile: profil.telephoneMobile,
-      adresseCabinet: profil.adresseCabinet,
-      bio: profil.bio,
-      conventionneCnam: profil.conventionneCnam,
-      dureeConsultation: toNumberOrNull(profil.dureeConsultation),
-      diplomesFormations: profil.diplomesFormations,
-      villeId: toNumberOrNull(profil.villeId),
-      delegationId: toNumberOrNull(profil.delegationId),
-      latitude: toNumberOrNull(profil.latitude),
-      longitude: toNumberOrNull(profil.longitude),
-    };
-
-    try {
-      const response = await fetch(
-        `https://tabiblink-backend.onrender.com/api/medecins/profil/${medecinEmail}`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body),
-        }
-      );
-
-      if (!response.ok) {
-        const error = await response.text();
-        setMessage(error || "Impossible de modifier le profil.");
-        return;
-      }
-
-      setMessage("Profil professionnel mis à jour avec succès.");
-      await chargerProfil();
-    } catch (e) {
-      setMessage("Erreur lors de la mise à jour du profil.");
-    } finally {
-      setSaving(false);
-    }
-  };
 
   const handleLogout = () => {
     localStorage.removeItem("medecinEmail");
