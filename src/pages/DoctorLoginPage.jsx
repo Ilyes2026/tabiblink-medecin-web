@@ -46,13 +46,33 @@ console.log("Réponse login médecin :", data);
 setMessage(backendMessage);
 
 if (response.ok && data?.role === "MEDECIN") {
-  const idMedecin = data?.medecinId || data?.id || data?.userId;
+  if (data?.statutCompte === "EN_ATTENTE") {
+    setMessage("Votre compte médecin est encore en attente de validation par l’administrateur.");
+    return;
+  }
 
-  localStorage.setItem("medecinId", idMedecin);
-  localStorage.setItem("medecinEmail", data?.email);
-  localStorage.setItem("medecinRole", data?.role);
+  if (data?.statutCompte === "REFUSE") {
+    setMessage("Votre compte médecin a été refusé par l’administrateur.");
+    return;
+  }
 
-  navigate("/espace-medecin");
+  if (data?.statutCompte === "DESACTIVE") {
+    setMessage("Votre compte médecin est désactivé.");
+    return;
+  }
+
+  if (data?.statutCompte === "VALIDE") {
+    const idMedecin = data?.medecinId || data?.id || data?.userId;
+
+    localStorage.setItem("medecinId", idMedecin);
+    localStorage.setItem("medecinEmail", data?.email);
+    localStorage.setItem("medecinRole", data?.role);
+
+    navigate("/espace-medecin");
+    return;
+  }
+
+  setMessage("Statut du compte médecin non reconnu.");
 } else {
   setMessage("Accès refusé : ce compte n’est pas un compte médecin.");
 }
