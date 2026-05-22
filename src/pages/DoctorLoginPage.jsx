@@ -21,61 +21,73 @@ function DoctorLoginPage() {
     setLoading(true);
 
     try {
-      const response = await fetch("https://tabiblink-backend.onrender.com/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email,
-          motDePasse,
-        }),
-      });
+      const response = await fetch(
+        "https://tabiblink-backend.onrender.com/api/auth/login",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email,
+            motDePasse,
+          }),
+        }
+      );
 
       const text = await response.text();
 
-let data = null;
-try {
-  data = JSON.parse(text);
-} catch {
-  data = null;
-}
+      let data = null;
+      try {
+        data = JSON.parse(text);
+      } catch {
+        data = null;
+      }
 
-const backendMessage = data?.message || text || "Erreur lors de la connexion.";
-console.log("Réponse login médecin :", data);
-setMessage(backendMessage);
+      console.log("Réponse login médecin :", data);
 
-if (response.ok && data?.role === "MEDECIN") {
-  if (data?.statutCompte === "EN_ATTENTE") {
-    setMessage("Votre compte médecin est encore en attente de validation par l’administrateur.");
-    return;
-  }
+      if (!response.ok) {
+        setMessage(data?.message || text || "Erreur lors de la connexion.");
+        return;
+      }
 
-  if (data?.statutCompte === "REFUSE") {
-    setMessage("Votre compte médecin a été refusé par l’administrateur.");
-    return;
-  }
+      const role = (data?.role || "").toUpperCase();
+      const statutCompte = (data?.statutCompte || "").toUpperCase();
 
-  if (data?.statutCompte === "DESACTIVE") {
-    setMessage("Votre compte médecin est désactivé.");
-    return;
-  }
+      if (!role.includes("MEDECIN")) {
+        setMessage("Accès refusé : ce compte n’est pas un compte médecin.");
+        return;
+      }
 
-  if (data?.statutCompte === "VALIDE") {
-    const idMedecin = data?.medecinId || data?.id || data?.userId;
+      if (statutCompte === "EN_ATTENTE") {
+        setMessage(
+          "Votre compte médecin est encore en attente de validation par l’administrateur."
+        );
+        return;
+      }
 
-    localStorage.setItem("medecinId", idMedecin);
-    localStorage.setItem("medecinEmail", data?.email);
-    localStorage.setItem("medecinRole", data?.role);
+      if (statutCompte === "REFUSE") {
+        setMessage("Votre compte médecin a été refusé par l’administrateur.");
+        return;
+      }
 
-    navigate("/espace-medecin");
-    return;
-  }
+      if (statutCompte === "DESACTIVE") {
+        setMessage("Votre compte médecin est désactivé.");
+        return;
+      }
 
-  setMessage("Statut du compte médecin non reconnu.");
-} else {
-  setMessage("Accès refusé : ce compte n’est pas un compte médecin.");
-}
+      if (statutCompte !== "VALIDE") {
+        setMessage("Statut du compte médecin non reconnu.");
+        return;
+      }
+
+      const idMedecin = data?.medecinId || data?.id || data?.userId;
+
+      localStorage.setItem("medecinId", idMedecin);
+      localStorage.setItem("medecinEmail", data?.email);
+      localStorage.setItem("medecinRole", data?.role);
+
+      navigate("/espace-medecin");
     } catch (error) {
       console.error(error);
       setMessage("Erreur lors de la connexion.");
@@ -114,7 +126,9 @@ if (response.ok && data?.role === "MEDECIN") {
 
         <form onSubmit={handleSubmit}>
           <div style={{ marginBottom: "16px" }}>
-            <label style={{ display: "block", marginBottom: "8px" }}>Email</label>
+            <label style={{ display: "block", marginBottom: "8px" }}>
+              Email
+            </label>
             <input
               type="email"
               value={email}
@@ -177,7 +191,10 @@ if (response.ok && data?.role === "MEDECIN") {
 
         <p style={{ marginTop: "22px", fontSize: "14px" }}>
           Vous n’avez pas de compte ?{" "}
-          <Link to="/inscription" style={{ color: "#0F4C81", fontWeight: "bold" }}>
+          <Link
+            to="/inscription"
+            style={{ color: "#0F4C81", fontWeight: "bold" }}
+          >
             Créer un compte
           </Link>
         </p>
