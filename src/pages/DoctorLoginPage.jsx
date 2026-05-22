@@ -76,10 +76,21 @@ function DoctorLoginPage() {
         return;
       }
 
-      if (statutCompte !== "VALIDE") {
-        setMessage("Statut du compte médecin non reconnu.");
-        return;
-      }
+      if (!statutCompte) {
+  const idMedecin = data?.medecinId || data?.id || data?.userId;
+
+  localStorage.setItem("medecinId", idMedecin);
+  localStorage.setItem("medecinEmail", data?.email);
+  localStorage.setItem("medecinRole", data?.role);
+
+  navigate("/espace-medecin");
+  return;
+}
+
+if (statutCompte !== "VALIDE") {
+  setMessage("Statut du compte médecin non reconnu.");
+  return;
+}
 
       const idMedecin = data?.medecinId || data?.id || data?.userId;
 
